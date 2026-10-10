@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ElevenLabs Studio | AI Text-to-Speech Voice Generator</title>
+  <meta name="description" content="Generate ultra-realistic human voices with ElevenLabs Studio. Powered by cutting-edge neural text-to-speech models.">
+  
+  <!-- Tailwind CSS CDN with custom config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Custom CSS for Glow, Glassmorphism, Sliders & Waveforms -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen antialiased transition-colors duration-300 relative selection:bg-indigo-500 selection:text-white dark:bg-[#090d16] dark:text-slate-100 light:bg-slate-50 light:text-slate-900">
+
+  <!-- Ambient Animated Background Lights -->
+  <div class="bg-ambient-glow">
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+    <div class="glow-orb-3"></div>
+  </div>
+
+  <div class="relative z-10 flex flex-col min-h-screen">
+    
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 border-b border-white/5 dark:border-white/5 light:border-slate-200/80 bg-[#090d16]/80 dark:bg-[#090d16]/80 light:bg-white/80 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3.5 flex items-center justify-between gap-4">
+        
+        <!-- Logo & Branding -->
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
+            <!-- Soundwave / Sparkle Logo -->
+            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 10v3"/>
+              <path d="M6 6v11"/>
+              <path d="M10 3v18"/>
+              <path d="M14 8v7"/>
+              <path d="M18 5v13"/>
+              <path d="M22 10v3"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 dark:from-white dark:to-slate-300 light:from-slate-900 light:to-slate-700 bg-clip-text text-transparent">
+                ElevenLabs Studio
+              </h1>
+              <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold tracking-wider">
+                v2.5
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 dark:text-slate-400 light:text-slate-500 font-medium">
+              Neural Text-to-Speech & Voice Synthesis Engine
+            </p>
+          </div>
+        </div>
+
+        <!-- Header Actions: API Key & Theme Toggle -->
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <!-- API Status Badge -->
+          <div id="apiKeyStatusBadge" class="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
+            <span class="w-2 h-2 rounded-full bg-indigo-400 status-beacon"></span>
+            Demo Studio Mode
+          </div>
+
+          <!-- API Key Config Button -->
+          <button 
+            type="button" 
+            id="openApiKeyModalBtn" 
+            class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-xl bg-slate-800/80 dark:bg-slate-800/80 light:bg-slate-100 hover:bg-slate-700/80 text-slate-300 dark:text-slate-300 light:text-slate-700 hover:text-white border border-slate-700/60 transition"
+            title="Configure ElevenLabs API Key"
+          >
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+            <span class="hidden sm:inline">API Key</span>
+          </button>
+
+          <!-- Theme Toggle Button -->
+          <button 
+            type="button" 
+            id="themeToggleBtn" 
+            class="p-2 rounded-xl bg-slate-800/80 dark:bg-slate-800/80 light:bg-slate-100 hover:bg-slate-700/80 text-slate-300 dark:text-slate-300 light:text-slate-700 hover:text-white border border-slate-700/60 transition"
+            title="Toggle Dark / Light Mode"
+            aria-label="Toggle Theme"
+          >
+            <!-- Sun Icon (in dark mode) -->
+            <svg class="w-4 h-4 hidden dark:block text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="5"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+            <!-- Moon Icon (in light mode) -->
+            <svg class="w-4 h-4 block dark:hidden text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      
+      <!-- Top Grid: Left Workspace & Right Library/Settings -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        
+        <!-- Left Main Panel (Col 1-7 or 8): Model selector, Prompt Presets, Textarea, Action Bar, Audio Player -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+
+          <!-- Main Input Card -->
+          <div class="glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden">
+            
+            <!-- Card Header: Model Selector & Live Active Voice Indicator -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/5 dark:border-white/5 light:border-slate-200">
+              
+              <!-- Custom Model Selector Dropdown -->
+              <div class="relative w-full sm:w-72">
+                <label class="block text-xs font-semibold text-slate-400 dark:text-slate-400 light:text-slate-600 mb-1.5 uppercase tracking-wider">
+                  Narration Model
+                </label>
+                
+                <button 
+                  type="button" 
+                  id="modelSelectTrigger" 
+                  class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-slate-100 hover:bg-slate-800 border border-slate-700/70 transition shadow-sm text-left group"
+                >
+                  <div class="min-w-0 pr-2">
+                    <div class="flex items-center gap-2">
+                      <span id="selectedModelName" class="font-semibold text-sm text-slate-100 dark:text-slate-100 light:text-slate-900 truncate">
+                        Eleven Multilingual v2
+                      </span>
+                      <span id="selectedModelBadge" class="text-xs px-2 py-0.5 rounded-full border bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
+                        Recommended
+                      </span>
+                    </div>
+                  </div>
+                  <svg class="w-4 h-4 text-slate-400 group-hover:text-slate-200 transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                <!-- Dropdown Popup Menu -->
+                <div 
+                  id="modelDropdownMenu" 
+                  class="hidden absolute left-0 right-0 mt-2 p-2 rounded-2xl bg-slate-900 dark:bg-slate-900 light:bg-white border border-slate-700/80 dark:border-slate-700/80 light:border-slate-200 shadow-2xl z-40 space-y-1 backdrop-blur-2xl"
+                >
+                  <!-- Populated via JavaScript -->
+                </div>
+              </div>
+
+              <!-- Active Selected Voice Pill Indicator -->
+              <div class="flex items-center gap-2 sm:self-end">
+                <span class="text-xs text-slate-400">Active Voice:</span>
+                <div id="activeVoiceBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 dark:bg-slate-900/80 light:bg-slate-100 border border-slate-700/60 text-xs">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 status-beacon"></span>
+                  <span class="font-medium text-slate-200">Rachel</span>
+                  <span class="text-xs text-slate-400">(Narration)</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Quick Sample Prompts & Actions -->
+            <div class="pt-5 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-full" id="promptPresets">
+                <!-- Preset buttons injected by app.js -->
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                <button 
+                  type="button" 
+                  id="pasteTextBtn" 
+                  class="text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-slate-300 dark:text-slate-300 light:text-slate-600 hover:text-white bg-slate-800/60 hover:bg-slate-700 border border-slate-700/50 transition" 
+                  title="Paste from clipboard"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                  </svg>
+                  <span>Paste</span>
+                </button>
+                <button 
+                  type="button" 
+                  id="clearTextBtn" 
+                  class="text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-rose-400 bg-slate-800/60 hover:bg-slate-700 border border-slate-700/50 transition" 
+                  title="Clear text"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  <span>Clear</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Text Input Area -->
+            <div class="mt-4 relative group">
+              <textarea 
+                id="textInput" 
+                rows="7"
+                class="w-full p-4 rounded-2xl bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-50 border border-slate-700/70 dark:border-slate-700/70 light:border-slate-200 text-slate-100 dark:text-slate-100 light:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/80 focus:border-transparent transition resize-y leading-relaxed text-sm sm:text-base font-normal shadow-inner"
+                placeholder="Paste or type your text content here for narration..."
+              ></textarea>
+              
+              <!-- Quick SSML helper chips along the bottom edge of textarea -->
+              <div class="absolute bottom-3 right-3 hidden sm:flex items-center gap-1.5 opacity-70 group-hover:opacity-100 transition">
+                <span class="text-[10px] text-slate-500">Insert:</span>
+                <button type="button" class="insert-tag-btn text-[10px] px-2 py-0.5 rounded bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700" data-tag=" [pause: 1s] ">+ 1s pause</button>
+                <button type="button" class="insert-tag-btn text-[10px] px-2 py-0.5 rounded bg-slate-800/90 text-slate-300 hover:text-white border border-slate-700" data-tag=" [whisper] ">+ whisper</button>
+              </div>
+            </div>
+
+            <!-- Live Text Statistics Bar -->
+            <div class="mt-3 flex items-center justify-between text-xs text-slate-400 font-mono">
+              <div class="flex items-center gap-4">
+                <span id="charCount" class="font-medium text-slate-300">0 / 5,000</span>
+                <span id="wordCount">0 words</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-indigo-400 font-medium">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span id="estDuration">~0s audio</span>
+              </div>
+            </div>
+
+            <!-- Action Bar: Prominent Play / Generate Button -->
+            <div class="mt-6 pt-5 border-t border-white/5 dark:border-white/5 light:border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+              
+              <!-- Generation Phase Status Text -->
+              <div class="flex items-center gap-2">
+                <span id="generationPhaseText" class="hidden text-xs text-indigo-400 animate-pulse font-medium">
+                  Connecting to neural pipeline...
+                </span>
+              </div>
+
+              <!-- Main "Play Narration" Button -->
+              <button 
+                type="button" 
+                id="generateSpeechBtn" 
+                class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-400 hover:via-purple-500 hover:to-pink-400 text-white font-semibold text-sm shadow-xl shadow-indigo-600/30 btn-glow flex items-center justify-center gap-2.5 transition active:scale-95 group"
+              >
+                <!-- Play / Microphone Icon -->
+                <svg id="generateIcon" class="w-5 h-5 fill-current text-white/90 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+
+                <!-- Loading Spinner (Hidden by default) -->
+                <svg id="generateSpinner" class="hidden w-5 h-5 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+
+                <span id="generateBtnText" class="tracking-wide">Play Narration</span>
+              </button>
+
+            </div>
+
+          </div>
+
+          <!-- Audio Player Bar (Appears once generated/playing) -->
+          <div 
+            id="audioPlayerBar" 
+            class="hidden glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl flex-col gap-4 border-indigo-500/30 transition-all duration-500 animate-fadeIn"
+          >
+            <!-- Player Header: Voice Info & Controls -->
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shrink-0">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/>
+                    <path d="M19 10v2a7 7 0 01-14 0v-2H3v2a9 9 0 008 8.94V23h2v-2.06A9 9 0 0021 12v-2h-2z"/>
+                  </svg>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <h3 id="playerVoiceTitle" class="font-bold text-sm text-slate-100 dark:text-slate-100 light:text-slate-900 truncate">Rachel (US Female)</h3>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-medium">Ready</span>
+                  </div>
+                  <p id="playerModelSubtitle" class="text-xs text-slate-400 truncate">Eleven Multilingual v2</p>
+                </div>
+              </div>
+
+              <!-- Quick Download & Speed -->
+              <div class="flex items-center gap-2">
+                <button 
+                  type="button" 
+                  id="downloadAudioBtn" 
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 text-xs font-semibold transition"
+                  title="Download Generated Audio (MP3/WAV)"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                  <span>Download</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Waveform Canvas Visualizer with Time & Scrubbing -->
+            <div class="relative w-full bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 rounded-2xl p-3 border border-slate-700/60">
+              <canvas id="waveformCanvas" class="w-full h-18 sm:h-22 cursor-pointer rounded-xl block"></canvas>
+            </div>
+
+            <!-- Player Bottom Bar: Play/Pause, Time, Speed, Volume -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-1">
+              
+              <!-- Left: Play/Pause & Timestamps -->
+              <div class="flex items-center gap-3.5">
+                <button 
+                  type="button" 
+                  id="playPauseBtn" 
+                  class="w-11 h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 transition active:scale-90"
+                  title="Play / Pause"
+                >
+                  <svg class="w-5 h-5 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                </button>
+
+                <div class="text-xs font-mono text-slate-300">
+                  <span id="playerCurrentTime" class="text-indigo-400 font-semibold">00:00</span>
+                  <span class="text-slate-500">/</span>
+                  <span id="playerTotalTime">00:00</span>
+                </div>
+              </div>
+
+              <!-- Center/Right: Speed Selector Chips -->
+              <div class="flex items-center gap-1 bg-slate-900/60 dark:bg-slate-900/60 light:bg-slate-200/60 p-1 rounded-xl border border-slate-700/50">
+                <button type="button" class="speed-chip text-[11px] px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition" data-speed="0.75">0.75x</button>
+                <button type="button" class="speed-chip text-[11px] px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-medium transition" data-speed="1.0">1.0x</button>
+                <button type="button" class="speed-chip text-[11px] px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition" data-speed="1.25">1.25x</button>
+                <button type="button" class="speed-chip text-[11px] px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition" data-speed="1.5">1.5x</button>
+              </div>
+
+              <!-- Volume Control -->
+              <div class="flex items-center gap-2">
+                <button type="button" id="muteBtn" class="p-1.5 text-slate-400 hover:text-white transition">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  </svg>
+                </button>
+                <input 
+                  type="range" 
+                  id="volumeSlider" 
+                  min="0" 
+                  max="1" 
+                  step="0.05" 
+                  value="1" 
+                  class="w-20 sm:w-24 accent-indigo-500" 
+                  title="Volume"
+                />
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Recent Generations History Section -->
+          <div class="glass-panel rounded-3xl p-5 sm:p-6 shadow-xl">
+            <div class="flex items-center justify-between pb-4 border-b border-white/5 dark:border-white/5 light:border-slate-200">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 14 14"/>
+                </svg>
+                <h3 class="font-bold text-sm text-slate-200 dark:text-slate-200 light:text-slate-800">Generation History</h3>
+              </div>
+              <span class="text-xs text-slate-500">Saved locally</span>
+            </div>
+
+            <!-- Empty State -->
+            <div id="historyEmptyState" class="py-8 text-center text-slate-500 text-xs">
+              <svg class="w-8 h-8 mx-auto mb-2 text-slate-600 stroke-current" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+              No previous narrations yet. Click "Play Narration" to synthesize your first audio.
+            </div>
+
+            <!-- History items list -->
+            <div id="historyList" class="mt-4 space-y-2.5 max-h-60 overflow-y-auto pr-1">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Side Panel (Col 8-12 / 4 cols): Voice Selector & Voice Settings Sliders -->
+        <div class="lg:col-span-4 flex flex-col gap-6">
+
+          <!-- Voice Settings Tuning Panel -->
+          <div class="glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-white/5 dark:border-white/5 light:border-slate-200">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                </svg>
+                <h3 class="font-bold text-sm text-slate-100 dark:text-slate-100 light:text-slate-900">Voice Settings</h3>
+              </div>
+              <span class="text-[11px] text-slate-400 font-mono">ElevenLabs v2</span>
+            </div>
+
+            <div class="mt-4 space-y-5">
+              
+              <!-- Stability Slider -->
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                  <span class="font-medium text-slate-300 dark:text-slate-300 light:text-slate-700">Stability</span>
+                  <span id="stabilityVal" class="font-mono text-indigo-400 font-semibold">50%</span>
+                </div>
+                <input 
+                  type="range" 
+                  id="stabilitySlider" 
+                  min="0" 
+                  max="1" 
+                  step="0.05" 
+                  value="0.5" 
+                  class="w-full"
+                />
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                  <span>More Variable</span>
+                  <span>More Stable</span>
+                </div>
+              </div>
+
+              <!-- Clarity / Similarity Boost Slider -->
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                  <span class="font-medium text-slate-300 dark:text-slate-300 light:text-slate-700">Clarity + Similarity</span>
+                  <span id="similarityVal" class="font-mono text-indigo-400 font-semibold">75%</span>
+                </div>
+                <input 
+                  type="range" 
+                  id="similaritySlider" 
+                  min="0" 
+                  max="1" 
+                  step="0.05" 
+                  value="0.75" 
+                  class="w-full"
+                />
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                  <span>Low Artifacts</span>
+                  <span>High Similarity</span>
+                </div>
+              </div>
+
+              <!-- Style Exaggeration Slider -->
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                  <span class="font-medium text-slate-300 dark:text-slate-300 light:text-slate-700">Style Exaggeration</span>
+                  <span id="styleVal" class="font-mono text-indigo-400 font-semibold">0%</span>
+                </div>
+                <input 
+                  type="range" 
+                  id="styleSlider" 
+                  min="0" 
+                  max="1" 
+                  step="0.05" 
+                  value="0" 
+                  class="w-full"
+                />
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                  <span>Neutral</span>
+                  <span>Exaggerated</span>
+                </div>
+              </div>
+
+              <!-- Speaker Boost Toggle -->
+              <div class="pt-2 border-t border-white/5 dark:border-white/5 light:border-slate-200 flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-semibold text-slate-200 dark:text-slate-200 light:text-slate-800">Speaker Boost</h4>
+                  <p class="text-[10px] text-slate-400">Boosts vocal presence and crispness</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="speakerBoostToggle" checked class="sr-only peer">
+                  <div class="w-10 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Voice Library Selector (Cards) -->
+          <div class="glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl flex flex-col flex-1">
+            <div class="flex items-center justify-between pb-4 border-b border-white/5 dark:border-white/5 light:border-slate-200">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/>
+                </svg>
+                <h3 class="font-bold text-sm text-slate-100 dark:text-slate-100 light:text-slate-900">Voice Library</h3>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">8 Voices</span>
+            </div>
+
+            <!-- Voice List / Cards -->
+            <div id="voicesGrid" class="mt-4 space-y-3 overflow-y-auto max-h-[520px] pr-1">
+              <!-- Rendered via app.js -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-white/5 dark:border-white/5 light:border-slate-200 py-6 text-center text-xs text-slate-500">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p>ElevenLabs Studio • Advanced Neural Speech Synthesis</p>
+        <div class="flex items-center gap-4 text-slate-400">
+          <span>Web Audio 2.0</span>
+          <span>•</span>
+          <span>Zero Latency Playback</span>
+          <span>•</span>
+          <a href="https://elevenlabs.io" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:underline">Official ElevenLabs Docs</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- API Key Modal Dialog -->
+  <div id="apiKeyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl border border-indigo-500/30 transform transition-all animate-scaleUp">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-white/10 dark:border-white/10 light:border-slate-200">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-indigo-600/30 text-indigo-400 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-base text-slate-100 dark:text-slate-100 light:text-slate-900">ElevenLabs API Key</h3>
+        </div>
+        <button type="button" id="closeApiKeyModalBtn" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4">
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Enter your ElevenLabs API Key to generate genuine ElevenLabs neural audio. Your key is stored solely in your browser's <code class="text-indigo-400">localStorage</code> and is never transmitted to any third-party server.
+        </p>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 dark:text-slate-300 light:text-slate-700 mb-1.5">
+            xi-api-key
+          </label>
+          <input 
+            type="password" 
+            id="apiKeyInput" 
+            placeholder="e.g. 7f8a9b2c3d4e..." 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 dark:bg-slate-900/90 light:bg-slate-100 border border-slate-700/80 text-sm text-slate-100 dark:text-slate-100 light:text-slate-900 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+          />
+        </div>
+
+        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300">
+          ✨ <strong>Integrated Key Active:</strong> Your ElevenLabs API key is configured and active. Voices like <strong>George</strong> and <strong>Roger</strong> are ready for immediate neural generation!
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-white/10 dark:border-white/10 light:border-slate-200 flex items-center justify-between gap-3">
+        <button 
+          type="button" 
+          id="clearApiKeyBtn" 
+          class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition"
+        >
+          Clear Key
+        </button>
+        <button 
+          type="button" 
+          id="saveApiKeyBtn" 
+          class="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition"
+        >
+          Save & Connect
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Core Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
